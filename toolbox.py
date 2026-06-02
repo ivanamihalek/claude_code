@@ -1,12 +1,10 @@
-import json
-from ast import Dict
 from datetime import datetime, timedelta
-from typing import List, Tuple
 
-from anthropic.types import ToolParam, ToolUseBlock
+from anthropic.types import ToolParam
 
 
 class Toolbox:
+    ###############################################################
     get_current_datetime_schema: ToolParam = {
         "name": "get_current_datetime",
         "description": "Returns the current date and time formatted according to the specified format string.",
@@ -28,6 +26,7 @@ class Toolbox:
             raise Exception("date_format cannot be empty")
         return datetime.now().strftime(date_format)
 
+    ###############################################################
     set_reminder_schema = {
         "name": "set_reminder",
         "description": "Creates a timed reminder that will notify the user at the specified time with the provided content. This tool schedules a notification to be delivered to the user at the exact timestamp provided. It should be used when a user wants to be reminded about something specific at a future point in time. The reminder system will store the content and timestamp, then trigger a notification through the user's preferred notification channels (mobile alerts, email, etc.) when the specified time arrives. Reminders are persisted even if the application is closed or the device is restarted. Users can rely on this function for important time-sensitive notifications such as meetings, tasks, medication schedules, or any other time-bound activities.",
@@ -50,6 +49,7 @@ class Toolbox:
     def set_reminder(self, content, timestamp):
         print(f"----\nSetting the following reminder for {timestamp}:\n{content}\n----")
 
+    ###############################################################
     add_duration_to_datetime_schema = {
         "name": "add_duration_to_datetime",
         "description": "Adds a specified duration to a datetime string and returns the resulting datetime in a detailed format. This tool converts an input datetime string to a Python datetime object, adds the specified duration in the requested unit, and returns a formatted string of the resulting datetime. It handles various time units including seconds, minutes, hours, days, weeks, months, and years, with special handling for month and year calculations to account for varying month lengths and leap years. The output is always returned in a detailed format that includes the day of the week, month name, day, year, and time with AM/PM indicator (e.g., 'Thursday, April 03, 2025 10:30:00 AM').",
@@ -123,32 +123,4 @@ class Toolbox:
         return new_date.strftime("%A, %B %d, %Y %I:%M:%S %p")
 
 
-
-def get_required_tools(message) ->List[Tuple]:
-    tool_input_tuples = []
-    for content in message.content:
-        if isinstance(content, ToolUseBlock):
-            tool_input_tuples.append((content.id, content.name, content.input))
-    return tool_input_tuples
-
-def create_result_block(response_message) -> List[Dict]:
-
-    tool_input_tuples = get_required_tools(response_message)
-    tool_result_block = []
-    for tool_use_id, fn_name, args in tool_input_tuples:
-        try:
-            result = getattr(Toolbox(), fn_name)(**args)
-            is_error = False
-        except Exception as e:
-            result = str(e)
-            is_error = True
-        tool_result = {
-            "type": "tool_result",
-            "tool_use_id": tool_use_id,
-            "content": json.dumps(result) ,
-            "is_error": is_error
-        }
-        tool_result_block.append(tool_result)
-
-    return tool_result_block
 

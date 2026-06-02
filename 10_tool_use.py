@@ -5,8 +5,8 @@ load_dotenv()
 
 from anthropic import Anthropic
 from utils import (add_user_message, get_response, print_message, print_price,
-                   add_assistant_message)
-from toolbox import Toolbox, create_result_block
+                   add_assistant_message, create_result_block)
+from toolbox import Toolbox
 
 
 def main():
@@ -30,7 +30,7 @@ def main():
     # (In a simple chat we would echo back just the text, as in response_message.content[0].text)
     # The add_assistant_message will extract response_message.content
     add_assistant_message(messages, response_message)
-    tool_result_block = create_result_block(response_message)
+    tool_result_block = create_result_block(response_message, Toolbox)
 
     messages.append({
         "role": "user",

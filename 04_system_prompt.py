@@ -43,13 +43,13 @@ def main():
 
     messages = []
     add_user_message(messages,  question)
-    sysprompt = "You have just woken up. Sound grumpy."
+    sysprompt = "You are a high school teacher"
     response_message = get_response(client, model, messages, system_prompt=sysprompt)
     print_message(response_message, pricing, model)
 
     messages = []
     add_user_message(messages, question)
-    sysprompt = "Be casual and sarcastic."
+    sysprompt = "Answer on the level of a graduate student in computer science"
     response_message = get_response(client, model, messages, system_prompt=sysprompt)
     print_message(response_message, pricing, model)
 
@@ -57,5 +57,3 @@ def main():
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
    main()
-
-# See PyCharm help at https://www.jetbrains.com/help/pycharm/

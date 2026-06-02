@@ -45,9 +45,9 @@ class TextEditorTool:
     def _count_matches(self, content: str, old_str: str) -> int:
         return content.count(old_str)
 
-    def view(self, file_path: str, view_range: Optional[List[int]] = None) -> str:
+    def view(self, path: str, view_range: Optional[List[int]] = None) -> str:
         try:
-            abs_path = self._validate_path(file_path)
+            abs_path = self._validate_path(path)
 
             if os.path.isdir(abs_path):
                 try:

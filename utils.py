@@ -1,7 +1,13 @@
-from typing import Any
+import json
+from ast import Dict
+from symtable import Class
+from typing import Any, List, Tuple
 
 from anthropic import Anthropic
 from anthropic.types import ToolUseBlock, TextBlock, Message
+
+from toolbox import Toolbox
+
 
 def add_user_message(messages, request: Message | Any):
     user_message = {"role": "user",
@@ -52,3 +58,39 @@ def print_price(message, model):
     }
     price = message.usage.input_tokens * pricing[model]["input"] + message.usage.input_tokens * pricing[model]["output"]
     print(f"The pleasure of getting this answer cost us {price:.1e} dollars")
+
+
+def get_required_tools(message) -> List[Tuple]:
+    # see doc/02_on_tooluseblock.py
+    tool_input_tuples = []
+    for content in message.content:
+        if isinstance(content, ToolUseBlock):
+            if content.name == 'str_replace_based_edit_tool':
+                identifier =  content.id
+                command = content.input['command']
+                arguments = {k:v for k, v in content.input.items() if k != 'command'}
+                tool_input_tuples.append((identifier, command, arguments))
+            else:
+                tool_input_tuples.append((content.id, content.name, content.input))
+    return tool_input_tuples
+
+
+def create_result_block(response_message, tool_class) -> List[Dict]:
+    tool_input_tuples = get_required_tools(response_message)
+    tool_result_block = []
+    for tool_use_id, fn_name, args in tool_input_tuples:
+        try:
+            result = getattr(tool_class(), fn_name)(**args)
+            is_error = False
+        except Exception as e:
+            result = str(e)
+            is_error = True
+        tool_result = {
+            "type": "tool_result",
+            "tool_use_id": tool_use_id,
+            "content": json.dumps(result) ,
+            "is_error": is_error
+        }
+        tool_result_block.append(tool_result)
+
+    return tool_result_block

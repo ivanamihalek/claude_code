@@ -1,15 +1,16 @@
 import os
 
+from anthropic.types import MessageParam
 from dotenv import load_dotenv
 load_dotenv()
 from anthropic import Anthropic
 
-def add_user_message(messages, text):
-    user_message = {"role": "user", "content": text}
+def add_user_message(messages, text: str):
+    user_message: MessageParam = {"role": "user", "content": text}
     messages.append(user_message)
 
-def add_assistant_message(messages, text):
-    assistant_message = {"role": "assistant", "content": text}
+def add_assistant_message(messages, text: str):
+    assistant_message: MessageParam = {"role": "assistant", "content": text}
     messages.append(assistant_message)
 
 def get_response(client, model, messages):
@@ -41,7 +42,7 @@ def main():
     print_message(response_message, pricing, model)
 
     add_assistant_message(messages, response_message.content[0].text)
-    add_user_message(messages, "Add one more sentence")
+    add_user_message(messages, "Add one more sentence about that.")
 
     response_message = get_response(client, model, messages)
     print_message(response_message, pricing, model)

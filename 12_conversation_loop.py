@@ -8,8 +8,8 @@ load_dotenv()
 
 from anthropic import Anthropic
 from utils import (add_user_message, get_response, print_message, print_price,
-                   add_assistant_message)
-from toolbox import Toolbox, create_result_block, get_required_tools
+                   add_assistant_message, get_required_tools, create_result_block)
+from toolbox import Toolbox
 
 
 def main():
@@ -27,11 +27,12 @@ def main():
         response_message = get_response(client, model, messages, tools=[Toolbox.get_current_datetime_schema])
         add_assistant_message(messages, response_message)
         print_message(response_message)
-
+        print_price(response_message, model)
+        print("--------------------------------------")
         if response_message.stop_reason != "tool_use":
             break
 
-        tool_result_block = create_result_block(response_message)
+        tool_result_block = create_result_block(response_message, Toolbox)
         add_user_message(messages, tool_result_block)
 
     if response_message  and response_message.stop_reason == "tool_use":

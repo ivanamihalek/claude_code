@@ -4,11 +4,14 @@ from email import message_from_string
 from urllib import response
 
 from dotenv import load_dotenv
-load_dotenv()
 
+from text_tool import TextEditorTool
+
+load_dotenv()
 from anthropic import Anthropic
-from utils import (add_user_message, get_response, print_message, print_price,
-                   add_assistant_message)
+
+from utils import add_user_message, get_response, print_message, print_price, add_assistant_message, create_result_block
+
 
 # Make the text edit schema based on the model version being used
 def get_text_edit_schema(model):
@@ -21,8 +24,8 @@ def main():
 
     client = Anthropic()
     model = "claude-haiku-4-5"
-    max_turns = 10
-    question = "Open the ./sandbox/main.py file and summarize its contents."
+    max_turns = 3
+    question = "Open the /home/ivana/exercises/claude_code/sandbox/main.py file and summarize its contents."
 
     messages = []
     add_user_message(messages, question)
@@ -34,11 +37,13 @@ def main():
         response_message = get_response(client, model, messages, tools=available_tools)
         add_assistant_message(messages, response_message)
         print_message(response_message)
+        print_price(response_message, model)
+        print("--------------------------------------")
 
         if response_message.stop_reason != "tool_use":
             break
 
-        tool_result_block = create_result_block(response_message)
+        tool_result_block = create_result_block(response_message, TextEditorTool)
         add_user_message(messages, tool_result_block)
 
     if response_message  and response_message.stop_reason == "tool_use":
