@@ -1,6 +1,7 @@
 #! /usr/bin/env python3
 import json
 from email import message_from_string
+from pprint import pprint
 from urllib import response
 
 from dotenv import load_dotenv
@@ -24,8 +25,11 @@ def main():
 
     client = Anthropic()
     model = "claude-haiku-4-5"
-    max_turns = 3
-    question = "Open the /home/ivana/exercises/claude_code/sandbox/main.py file and summarize its contents."
+    max_turns = 10
+    # question = "Open the /home/ivana/exercises/claude_code/sandbox/main.py file and summarize its contents."
+    question = ("Open the /home/ivana/exercises/claude_code/sandbox/main.py file "
+                " and and write out a function to calculate pi to the 5th digit. "
+                "Then create a ./test.py file to test your implementation.")
 
     messages = []
     add_user_message(messages, question)
@@ -50,7 +54,10 @@ def main():
         print(f"Warning: the conversation loop closed while the model still asked for tool usage")
 
     print()
-    [print(msg) for msg in messages]
+    print("The message exchange")
+    for msg in messages:
+        print("*****************************")
+        pprint(msg)
 
 if __name__ == '__main__':
     main()

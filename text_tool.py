@@ -1,4 +1,4 @@
-# Implementation of the TextEditorTool
+# Implementation of the TextEditorTool, described here: https://platform.claude.com/docs/en/agents-and-tools/tool-use/text-editor-tool
 import os
 import shutil
 from typing import Optional, List
@@ -10,37 +10,37 @@ class TextEditorTool:
         self.backup_dir = backup_dir or os.path.join(self.base_dir, ".backups")
         os.makedirs(self.backup_dir, exist_ok=True)
 
-    def _validate_path(self, file_path: str) -> str:
-        abs_path = os.path.normpath(os.path.join(self.base_dir, file_path))
+    def _validate_path(self, path: str) -> str:
+        abs_path = os.path.normpath(os.path.join(self.base_dir, path))
         if not abs_path.startswith(self.base_dir):
             raise ValueError(
-                f"Access denied: Path '{file_path}' is outside the allowed directory"
+                f"Access denied: Path '{path}' is outside the allowed directory"
             )
         return abs_path
 
-    def _backup_file(self, file_path: str) -> str:
-        if not os.path.exists(file_path):
+    def _backup_file(self, path: str) -> str:
+        if not os.path.exists(path):
             return ""
-        file_name = os.path.basename(file_path)
+        file_name = os.path.basename(path)
         backup_path = os.path.join(
-            self.backup_dir, f"{file_name}.{os.path.getmtime(file_path):.0f}"
+            self.backup_dir, f"{file_name}.{os.path.getmtime(path):.0f}"
         )
-        shutil.copy2(file_path, backup_path)
+        shutil.copy2(path, backup_path)
         return backup_path
 
-    def _restore_backup(self, file_path: str) -> str:
-        file_name = os.path.basename(file_path)
+    def _restore_backup(self, path: str) -> str:
+        file_name = os.path.basename(path)
         backups = [
             f for f in os.listdir(self.backup_dir) if f.startswith(file_name + ".")
         ]
         if not backups:
-            raise FileNotFoundError(f"No backups found for {file_path}")
+            raise FileNotFoundError(f"No backups found for {path}")
 
         latest_backup = sorted(backups, reverse=True)[0]
         backup_path = os.path.join(self.backup_dir, latest_backup)
 
-        shutil.copy2(backup_path, file_path)
-        return f"Successfully restored {file_path} from backup"
+        shutil.copy2(backup_path, path)
+        return f"Successfully restored {path} from backup"
 
     def _count_matches(self, content: str, old_str: str) -> int:
         return content.count(old_str)
@@ -100,9 +100,9 @@ class TextEditorTool:
         except Exception as e:
             raise type(e)(str(e))
 
-    def str_replace(self, file_path: str, old_str: str, new_str: str) -> str:
+    def str_replace(self, path: str, old_str: str, new_str: str) -> str:
         try:
-            abs_path = self._validate_path(file_path)
+            abs_path = self._validate_path(path)
 
             if not os.path.exists(abs_path):
                 raise FileNotFoundError("File not found")
@@ -139,9 +139,9 @@ class TextEditorTool:
         except Exception as e:
             raise type(e)(str(e))
 
-    def create(self, file_path: str, file_text: str) -> str:
+    def create(self, path: str, file_text: str) -> str:
         try:
-            abs_path = self._validate_path(file_path)
+            abs_path = self._validate_path(path)
 
             # Check if file already exists
             if os.path.exists(abs_path):
@@ -156,7 +156,7 @@ class TextEditorTool:
             with open(abs_path, "w", encoding="utf-8") as f:
                 f.write(file_text)
 
-            return f"Successfully created {file_path}"
+            return f"Successfully created {path}"
 
         except ValueError as e:
             raise ValueError(str(e))
@@ -165,9 +165,9 @@ class TextEditorTool:
         except Exception as e:
             raise type(e)(str(e))
 
-    def insert(self, file_path: str, insert_line: int, new_str: str) -> str:
+    def insert(self, path: str, insert_line: int, new_str: str) -> str:
         try:
-            abs_path = self._validate_path(file_path)
+            abs_path = self._validate_path(path)
 
             if not os.path.exists(abs_path):
                 raise FileNotFoundError("File not found")
@@ -205,9 +205,9 @@ class TextEditorTool:
         except Exception as e:
             raise type(e)(str(e))
 
-    def undo_edit(self, file_path: str) -> str:
+    def undo_edit(self, path: str) -> str:
         try:
-            abs_path = self._validate_path(file_path)
+            abs_path = self._validate_path(path)
 
             if not os.path.exists(abs_path):
                 raise FileNotFoundError("File not found")
