@@ -1,14 +1,11 @@
 #! /usr/bin/env python3
-import json
-from email import message_from_string
 from pprint import pprint
-from urllib import response
-
 from dotenv import load_dotenv
+load_dotenv()
 
 from text_tool import TextEditorTool
 
-load_dotenv()
+
 from anthropic import Anthropic
 
 from utils import add_user_message, get_response, print_message, print_price, add_assistant_message, create_result_block
