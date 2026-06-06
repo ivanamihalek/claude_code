@@ -81,7 +81,7 @@ def ensure_table(cur: psycopg.Cursor, dim: int) -> None:
     cur.execute("CREATE EXTENSION IF NOT EXISTS vector")
     #cur.execute(f"CREATE TABLE IF NOT EXISTS rag_chunks (id  SERIAL PRIMARY KEY, chunk TEXT NOT NULL,
     # embedding vector({dim}) NOT NULL)")
-    # use psycopg.sql
+    # use psycopg.sql instead
     # sql.SQL(...) creates a safe SQL template.
     #sql.Literal(dim) safely inserts the number (no SQL injection risk, and it satisfies the type checker).
     cur.execute(sql.SQL("""
