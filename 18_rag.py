@@ -32,6 +32,7 @@ def generate_embedding(client, input, model="voyage-3-large", input_type="query"
     return  result.embeddings if input_is_list else  result.embeddings[0]
 
 def main():
+
     with open("./rag_input.md", "r") as f:
         text = f.read()
 
