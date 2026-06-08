@@ -94,3 +94,4 @@ def create_result_block(response_message, tool_class) -> List[Dict]:
         tool_result_block.append(tool_result)
 
     return tool_result_block
+

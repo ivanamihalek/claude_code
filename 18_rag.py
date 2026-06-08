@@ -59,7 +59,7 @@ def main():
     results = store.search(user_embedding, 2)
 
     for doc, distance in results:
-        print(distance, "\n", doc["content"][0:200], "\n")
+        print(distance, "\n", doc["content"], "\n")
 
 
 if __name__ == "__main__":

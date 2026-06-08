@@ -1,11 +1,13 @@
 #!/usr/bin/env python3
 """RAG demo: chunk → embed (cached) → upsert into pgvector."""
 from dotenv import load_dotenv
+
+from pg_utils import get_dsn
+
 load_dotenv()
 
 import argparse
 import json
-import os
 import re
 from pathlib import Path
 
@@ -57,23 +59,13 @@ def save_cache(scratch_dir: Path, embeddings: np.ndarray, chunks: list[str]) -> 
 
 def generate_embeddings(client: voyageai.Client, chunks: list[str]) -> np.ndarray:
     """Call VoyageAI to embed all chunks; return as float32 numpy array."""
-    result = client.embed(chunks, model="voyage-3", input_type="document")
+    result = client.embed(chunks, model="voyage-3-large", input_type="document")
     return np.array(result.embeddings, dtype=np.float32)
 
 
 # ---------------------------------------------------------------------------
 # pgvector
 # ---------------------------------------------------------------------------
-#  DSN stands for Data Source Name. For PostgreSQL, it is a single string or URL that contains all the required
-#  information to locate and connect to your database—including the host, port, database name, username, and password.
-# for example
-# postgresql://username:password@hostname:port/database_name?sslmode=require
-def get_dsn() -> str:
-    """Read DATABASE_URL from environment; raise if missing."""
-    dsn = os.environ.get("DATABASE_URL")
-    if not dsn:
-        raise EnvironmentError("DATABASE_URL environment variable is not set.")
-    return dsn
 
 from psycopg import sql
 def ensure_table(cur: psycopg.Cursor, dim: int) -> None:
